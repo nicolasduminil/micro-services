@@ -23,11 +23,11 @@ public class HmlRestControllerTest
   public void test1() throws MalformedURLException
   {
     HttpEntity<SubscriberInfo> request = new HttpEntity<SubscriberInfo>(new SubscriberInfo("subscriptionName",
-      new JmsTopicSubscriberInfo("selector", "clientId", "http://localhost:8080/ms-core/api/test/")));
-    ResponseEntity resp = restTemplate.postForEntity("http://localhost:8080/ms-core/api/subscribe/", request, Void.class);
+      new JmsTopicSubscriberInfo("selector", "clientId", "http://localhost:8080/hml/api/test/")));
+    ResponseEntity resp = restTemplate.postForEntity("http://localhost:8080/hml/api/subscribe/", request, Void.class);
     assertEquals(resp.getStatusCode(), HttpStatus.ACCEPTED);
     HttpEntity<HmlEvent> request2 = new HttpEntity<>(new HmlEvent("subscriptionName", "messageId", "payload"));
-    HmlEvent hmle = restTemplate.postForObject("http://localhost:8080/ms-core/api/publish/", request2, HmlEvent.class);
+    HmlEvent hmle = restTemplate.postForObject("http://localhost:8080/hml/api/publish/", request2, HmlEvent.class);
     assertThat(hmle, notNullValue());
     assertEquals(hmle.getMessageId(), "messageId");
     assertEquals(hmle.getPayload(), "payload");

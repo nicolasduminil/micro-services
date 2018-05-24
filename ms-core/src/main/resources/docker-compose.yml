@@ -1,0 +1,24 @@
+version: "2"
+services:
+  active-mq:
+    image: webcenter/activemq:latest
+    container_name: active-mq
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+      - "5672:5672"
+      - "61613:61613"
+      - "1883:1883"
+      - "61614:61614"
+  ms-core:
+    image: openjdk:8-jdk-alpine
+    container_name: ms-core
+    links:
+      - active-mq:active-mq
+    volumes:
+      - ../docker:/usr/local/share/hml
+    ports:
+      - "8080:8080"
+    entrypoint: /usr/local/share/hml/run.sh
+    environment:
+      BROKER_PORT:  "61616"

@@ -33,7 +33,7 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
@@ -48,7 +48,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-rsa</artifactId>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-activemq</artifactId>
@@ -64,11 +64,18 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>fr.simplex_software.micro_services.core.HmlApplication</mainClass>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.dkanejs.maven.plugins</groupId>
+        <artifactId>docker-compose-maven-plugin</artifactId>
+        <version>1.0.1</version>
       </plugin>
     </plugins>
   </build>
   <modules>
-    <module>ms-config</module>
     <module>ms-core</module>
   </modules>
 </project>
