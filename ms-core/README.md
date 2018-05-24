@@ -1,30 +1,38 @@
-# Introduction
-Welcome to my Microservices article series. This project aims at demonstrating some of the most basic microservices related topics. Here you will get introduced to Spring Boot and Spring Cloud quick-starts showing the following:
+Welcome to the first part of the Microservices article series. This first part shows how to implement a microservice with Spring Boot and Spring Cloud. 
+Our sample microservice is wrapping an ActiveMQ topic and provides a REST interface to publish/subscribe messages on this topic.
+Here are the components:
+  - a Spring configuration class (HmlConfig) defining an JmsTemplate and a JMS connection factory.
+  - a Spring controller (HmlRestController) which exposes a REST interface able to publish/subscribe messages to the JMS topic.
+  - a JMS listener which listens of the topic and forward the received messages to a provided endpoint.
+The exchanged messages are of the Java object type holding inside a HmlEvent instance. The domain package contains the HmlEvent 
+class together with all the others domain objects.
+An unit/integration test allows to validate the whole stuff.
 
-1.  A quite basic Spring Boot microservice exposing a REST API which emphasizes an ActiveMQ message broker.
-2.  A Spring Cloud Configuration Server hosting the properties required by the microservice.
-3.  Using auto-discovery with Spring Netflix Eureka server.
-4.  Using client side load-balancing with Spring Cloud and Netflix Ribbon.
-5.  Applying client resiiency design patterns with Spring Cloud and Netflix Hystrix
-6.  Service routing with Spring Cloud and Zuul.
-7.  Securing our microservice with OAuth 2.0 and OpenID Connect.
-8.  Implementing an event-driven architecture with Spring Cloud Stream.
-9.  Monitoring our microservice by distributed logging and tracing wth Spring Cloud Sleuth and Zipkin.
-10. Deploying our microservice in the cloud with Amazon ECS.
+To build this sample proceed as follows:
+  - open a command-line window
+  - create a directory
+  - move to that directory
+  - clone the repository by doing the following command:
+      ** git clone https://github.com/nicolasduminil/micro-services.git **
+  - switch to the first part branch by doing the following command:
+      ** git checkout core **
+  - change to the right directory by doing the following command:
+      ** cd ms-basics
+  - build the project by doing the following command:
+      ** mvn -DskipTests clean install
+  - start the docker containers by doing the following command:
+      ** mvn -pl ms-core docker-compose:up
+After performing the operations above you'll get two docker containers running, as follows:
+  - a container named active-mq running the messaging broker
+  - a container named ms-core running our microservice
+To test, do the following:
+  - open a new command-line window
+  - move to the project directory
+  - run the following:
+    ** mvn test **
+In order to get the conatainers IP addresses do the following:
+    ** docker inspect <container-name>
+where <container-name> is active-mq or ms-core.
 
-# Software needed
+You can connect now to the ActiveMQ console at http://<activemq-ip-address>:8161. You can also connect to the main page of the microservice at http://<ms-core-ip-address>:8080/hml
 
-1.  Java 8 (http://www.oracle.com)
-2.  Apache Maven (http://maven.apache.org). 
-3.  Docker (http://docker.com).
-4.  Docker Compose ((http://docker.com/toolbox)
-5.  Git Client (http://git-scm.com).
-
-# Building the Docker Images 
-To build the code examples as a docker image, open a command-line window change to the directory where you have downloaded the project source code.
-
-Run the following maven command.  This command will execute the docker-compose-maven-plugin (https://github.com/dkanejs/docker-compose-maven-plugin) defined in the pom.xml file.  
-
-   **mvn clean package docker-compose:up**
-
-If everything starts correctly you should see a bunch of Spring Boot information fly by on standard out.  At this point all of the services needed for the chapter code examples will be running.
