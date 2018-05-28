@@ -1,5 +1,4 @@
 #!/bin/sh
-
 echo "********************************************************"
 echo "Waiting for the configuration server to start on port $CONFIGSERVER_PORT"
 echo "********************************************************"
