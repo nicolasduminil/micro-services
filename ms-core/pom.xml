@@ -11,6 +11,12 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Micro-services :: The core service</name>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-eureka-server</artifactId>
+    </dependency>
+  </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>

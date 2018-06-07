@@ -20,6 +20,20 @@ services:
     entrypoint: /usr/local/share/hml/run.sh
     environment:
       BROKER_PORT:  "61616"
+  ms-discovery:
+    image: openjdk:8-jdk-alpine
+    container_name: ms-discovery
+    volumes:
+      - ../../ms-discovery/src/main/docker:/usr/local/share/hml
+    ports:
+      - "8761:8761"
+    entrypoint: /usr/local/share/hml/run.sh
+    environment:
+     PROFILE: "default"
+     CONFIGSERVER_URI: "http://ms-config:8888"
+     CONFIGSERVER_PORT:   "8888"
+     CONFIGSERVER_LABEL: "discovery"
+     SERVER_PORT: "8761"
   ms-core:
     image: openjdk:8-jdk-alpine
     depends_on:
@@ -38,3 +52,27 @@ services:
       CONFIGSERVER_URI: "http://ms-config:8888"
       CONFIGSERVER_PORT:   "8888"
       BROKER_PORT:  "61616"
+      SERVER_PORT: "8080"
+      EUREKASERVER_PORT:   "8761"
+      CONFIGSERVER_LABEL: "discovery"
+  ms-core2:
+    image: openjdk:8-jdk-alpine
+    depends_on:
+      - ms-config
+    container_name: ms-core2
+    links:
+      - ms-config:ms-config
+      - active-mq:active-mq
+    volumes:
+      - ../../ms-core/src/main/docker:/usr/local/share/hml
+    ports:
+      - "8081:8081"
+    entrypoint: /usr/local/share/hml/run.sh
+    environment:
+      PROFILE: "default"
+      CONFIGSERVER_URI: "http://ms-config:8888"
+      CONFIGSERVER_PORT:   "8888"
+      BROKER_PORT:  "61616"
+      SERVER_PORT: "8081"
+      EUREKASERVER_PORT:   "8761"
+      CONFIGSERVER_LABEL: "discovery"

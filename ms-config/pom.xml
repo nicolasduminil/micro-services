@@ -10,7 +10,7 @@
   <artifactId>ms-config</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>Micro-services :: The configuration server</name>
+  <name>Micro-services :: The configuration service</name>
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
