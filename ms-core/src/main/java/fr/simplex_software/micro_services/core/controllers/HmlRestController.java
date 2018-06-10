@@ -17,7 +17,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@EnableEurekaClient
 public class HmlRestController
 {
   public static final Logger logger = LoggerFactory.getLogger(HmlRestController.class);
