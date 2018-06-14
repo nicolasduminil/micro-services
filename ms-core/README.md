@@ -1,15 +1,9 @@
-Welcome to the third part of the Microservices article series. This third part shows how to use a Netflix Eureka service
-in order to abstract microservices physical location to consumers.  
-Our sample microservice presented in the first and second part was consumed by invoking explicitly its endpoints.
-These endpoints consists in physical address (the IP address of the host and the TCP port number), followed by the logical one 
-(webapp root context, service URI, etc.).
-But for microservices running in a cloud and, hence, having several instances each one running of its own host, with its own TCP
-port number, a consumer cannot know the physical location. 
-Hence, Spring Cloud provides a full integration with the Netflix Eureka service, which is an auto-discovery service, which responsability
-is to serve as a registry of all the running micrservices. At the startime, each microservice registers with the Eureka service which
-cashes their physical address. Further, the consumer don't invoke the microservices endpoints directly, but through the Netflix Ribbon API,
-which is fully integrated with Spring Cloud as well. This API is responsible to map a logical endpoint to a physical one, performing in the 
-same time a load balancing process.
+Welcome to the fourth part of the Microservices article series. This fourth part shows how to use a 
+Netflix Hystrix Circuit Breaker service in order to fail fast and/or fallback microservices.  
+When used for failing fast, the Hystrix Circuit Breaker will avoid calling remote services which
+experience degradations, preventing this way resource exhaustion.
+When used for fallback, the Hystrix CircuitBreaker will fail gracefully by giving the developer
+the possibility to specify an alternative endpoint to the degradated one.
 
 To build this sample proceed as follows:
   - open a command-line window
@@ -18,9 +12,9 @@ To build this sample proceed as follows:
   - clone the repository by doing the following command:
       ** git clone https://github.com/nicolasduminil/micro-services.git **
   - switch to the third part branch by doing the following command:
-      ** git checkout discovery **
+      ** git checkout resilience **
   - change to the right directory by doing the following command:
-      ** cd ms-core-config-discovery
+      ** cd ms-core-config-discovery-resilience
   - build the project by doing the following command:
       ** mvn -DskipTests clean install
   - start the docker containers by doing the following command:
@@ -36,13 +30,19 @@ To test, do the following:
   - move to the project directory
   - run the following:
     ** mvn test **
-In order to get the conatainers IP addresses do the following:
-    ** docker inspect <container-name>
-where <container-name> is active-mq or ms-core.
+The remote service has been modified such to simulate a partial degradated service which experiences
+performance problems. Hence, the remote endpoint won't be executed but instead the provided alternative
+endpoint which simply displays the following message:
+"*** HmlRestController.gtsFallbackSubscribe(): No subscribe service available"
+This message says that the subscribe service takes too long to answer and hence
+an alternative endpoint is called.
+Now, you can comment out the fallbackMethod = "gtsFallbackSubscribe" property in the @HystrixCommand
+annotation and to build and run again the test. This time you should experience a timeout exception.
+This is because there is no anymore alternative endpoint, as you commented out the fallback option, and
+hence the Circuit Breaker interrupts the execution of the too long responding endpoint raising a timeout exception.
 
-You can connect now to the ActiveMQ console at http://<activemq-ip-address>:8161. 
-You can also connect to the main page of the microservice at http://<ms-core-ip-address>:8080/hml.
-You can also connect to the config server at http://<ms-config-ip-address>:8888/hmlConfig/<profile-name> 
-in order to see the propeties set associated to the given profile. 
-You can connect to the Eureka server at http://<ms-discovery-ip-address>:8761
+In order to monitor the Circuit Breaker you can connect to the Hystrix Dashboard at 
+http://<service-ip-address><service-tcp-port>/hystrix, where <service-ip-address> is the IP address of the
+docker container that you can find using the docker inspect command. <service-tcp-port> is, in our case,
+8080 or 8081 for the ms-core and respectivelly ms-core2 microservices.
 

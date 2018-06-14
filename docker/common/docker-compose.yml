@@ -54,7 +54,7 @@ services:
       BROKER_PORT:  "61616"
       SERVER_PORT: "8080"
       EUREKASERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "discovery"
+      CONFIGSERVER_LABEL: "resilience"
   ms-core2:
     image: openjdk:8-jdk-alpine
     depends_on:
@@ -75,4 +75,4 @@ services:
       BROKER_PORT:  "61616"
       SERVER_PORT: "8081"
       EUREKASERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "discovery"
+      CONFIGSERVER_LABEL: "resilience"
