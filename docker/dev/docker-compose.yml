@@ -32,8 +32,23 @@ services:
      PROFILE: "dev"
      CONFIGSERVER_URI: "http://ms-config:8888"
      CONFIGSERVER_PORT:   "8888"
-     CONFIGSERVER_LABEL: "discovery"
+     CONFIGSERVER_LABEL: "routing"
      SERVER_PORT: "8761"
+  ms-routing:
+    image: openjdk:8-jdk-alpine
+    container_name: ms-routing
+    volumes:
+      - ../../ms-routing/src/main/docker:/usr/local/share/hml
+    ports:
+      - "5555:5555"
+    entrypoint: /usr/local/share/hml/run.sh
+    environment:
+     PROFILE: "dev"
+     CONFIGSERVER_URI: "http://ms-config:8888"
+     CONFIGSERVER_PORT:   "8888"
+     DISCOVERY_PORT: "8761"
+     CONFIGSERVER_LABEL: "routing"
+     SERVER_PORT: "5555"
   ms-core:
     image: openjdk:8-jdk-alpine
     depends_on:
@@ -54,7 +69,7 @@ services:
       BROKER_PORT:  "61616"
       SERVER_PORT: "8080"
       EUREKASERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "discovery"
+      CONFIGSERVER_LABEL: "routing"
   ms-core2:
     image: openjdk:8-jdk-alpine
     depends_on:
@@ -75,4 +90,4 @@ services:
       BROKER_PORT:  "61616"
       SERVER_PORT: "8081"
       EUREKASERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "discovery"
+      CONFIGSERVER_LABEL: "routing"

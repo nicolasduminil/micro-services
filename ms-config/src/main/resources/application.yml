@@ -10,3 +10,8 @@ spring:
           searchPaths: hml-core
           username: nicolasduminil
           password: California1
+logging:
+  level:
+    com.netflix: WARN
+    org.springframework.web: WARN
+    fr.simplex_software.micro_services.config: DEBUG

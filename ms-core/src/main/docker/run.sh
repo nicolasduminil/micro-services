@@ -6,10 +6,16 @@ while ! `nc -z ms-config $CONFIGSERVER_PORT `; do sleep 3; done
 echo ">>>>>>>>>>>> The Configuration Server has started"
 
 echo "********************************************************"
-echo "Waiting for the discovery service to start on port $EUREKASERVER_PORT"
+echo "Waiting for the discovery service to start on port $DISCOVERYSERVER_PORT"
 echo "********************************************************"
-while ! `nc -z ms-discovery  $EUREKASERVER_PORT`; do sleep 3; done
+while ! `nc -z ms-discovery  $DISCOVERYSERVER_PORT`; do sleep 3; done
 echo "******* The Discovery Service has started"
+
+echo "********************************************************"
+echo "Waiting for the routing service to start on port $ROUTINGSERVER_PORT"
+echo "********************************************************"
+while ! `nc -z ms-routing  $ROUTINGSERVER_PORT`; do sleep 3; done
+echo "******* The Routing Service has started"
 
 echo "********************************************************"
 echo "Starting the core service with configuration on :  $CONFIGSERVER_URI"

@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: hml-routing
+management:
+  security:
+    enabled: false
+eureka:
+  instance:
+    preferIpAddress: "true"

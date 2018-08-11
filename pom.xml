@@ -67,5 +67,6 @@
     <module>ms-config</module>
     <module>ms-core</module>
     <module>ms-discovery</module>
+    <module>ms-routing</module>
   </modules>
 </project>

@@ -47,15 +47,6 @@ public class HmlRestController
   @HystrixCommand(fallbackMethod = "gtsFallbackSubscribe")
   public ResponseEntity gtsSubscribe(@RequestBody SubscriberInfo si) throws JMSException
   {
-    logger.debug("*** HmlRestController.gtsSubscribe(): Simulating a long running process.");
-    try
-    {
-      Thread.sleep(5000);
-    }
-    catch (InterruptedException e)
-    {
-      e.printStackTrace();
-    }
     subscribers.put(si.getSubscriptionName(), si.getSubscriberInfo());
     logger.debug("*** HmlRestController.gtsSubscribe(): Have subscribed to events {}, {}, {}", si.getSubscriptionName(), si.getSubscriberInfo().getClientId(), si.getSubscriberInfo().getMessageSelector());
     return ResponseEntity.accepted().build();

@@ -1,48 +1,42 @@
-Welcome to the fourth part of the Microservices article series. This fourth part shows how to use a 
-Netflix Hystrix Circuit Breaker service in order to fail fast and/or fallback microservices.  
-When used for failing fast, the Hystrix Circuit Breaker will avoid calling remote services which
-experience degradations, preventing this way resource exhaustion.
-When used for fallback, the Hystrix CircuitBreaker will fail gracefully by giving the developer
-the possibility to specify an alternative endpoint to the degradated one.
+Welcome to the 5th part of the Microservices article series. This 5th part shows how to use a 
+Netflix Zuul service in order to implement a microservices gateway.  
+Until now, while testing our microservices, we have either called them directly or via  the Eureka discovery service.  
+A microservices gateway is a mediator between the microservices and their consumers. This way we have a single URL that the consumers call and this provides us one of the Graal of the SOA which is the location transparency.  
+Another considerable advantage when using a microservices gateway is that it acts as a single, central, policy enforcement point. Hence, shuld we want to secure the access to the microservices, or should we want to perform advanced logging or tracing, this is the point where we can do it without affecting the global design.  
+Spring Cloud integrates with the Zuul Netflix project. This is an open source project providing a microservices gateway such the one we described above. It is very simple to set it up via Sprong Cloud annotations, as follows.
 
 To build this sample proceed as follows:
   - open a command-line window
   - create a directory
   - move to that directory
-  - clone the repository by doing the following command:
-      ** git clone https://github.com/nicolasduminil/micro-services.git **
-  - switch to the third part branch by doing the following command:
-      ** git checkout resilience **
-  - change to the right directory by doing the following command:
-      ** cd ms-core-config-discovery-resilience
-  - build the project by doing the following command:
-      ** mvn -DskipTests clean install
-  - start the docker containers by doing the following command:
-      ** docker-compose -f docker/common/docker-compose.yml up
-After performing the operations above you'll get two docker containers running, as follows:
+  - clone the repository by doing the following command:  
+      ```git clone https://github.com/nicolasduminil/micro-services.git```
+  - switch to the 5th part branch by doing the following command:  
+      ``` git checkout routing ```
+  - change to the right directory by doing the following command:  
+      ```cd ms-core-config-discovery-resilience-routing ```
+  - build the project by doing the following command:  
+      ```mvn -DskipTests clean install```
+  - start the docker containers by doing the following command:  
+      ```docker-compose -f docker/common/docker-compose.yml up```  
+After performing the operations above you'll get several docker containers running, as follows:
   - a container named active-mq running the messaging broker
   - a container named ms-config running the configuration microservice
-  - a container named ms-discovery running the Eurela service
+  - a container named ms-discovery running the Eureka service
   - a container named ms-core running a first instance of the core microservice
   - a container named ms-core2 running a second instance of the core microservice
+  - a container named ms-routing runningthe Zuul service
 To test, do the following:
   - open a new command-line window
-  - move to the project directory
-  - run the following:
-    ** mvn test **
-The remote service has been modified such to simulate a partial degradated service which experiences
-performance problems. Hence, the remote endpoint won't be executed but instead the provided alternative
-endpoint which simply displays the following message:
-"*** HmlRestController.gtsFallbackSubscribe(): No subscribe service available"
-This message says that the subscribe service takes too long to answer and hence
-an alternative endpoint is called.
-Now, you can comment out the fallbackMethod = "gtsFallbackSubscribe" property in the @HystrixCommand
-annotation and to build and run again the test. This time you should experience a timeout exception.
-This is because there is no anymore alternative endpoint, as you commented out the fallback option, and
-hence the Circuit Breaker interrupts the execution of the too long responding endpoint raising a timeout exception.
-
-In order to monitor the Circuit Breaker you can connect to the Hystrix Dashboard at 
-http://<service-ip-address><service-tcp-port>/hystrix, where <service-ip-address> is the IP address of the
-docker container that you can find using the docker inspect command. <service-tcp-port> is, in our case,
-8080 or 8081 for the ms-core and respectivelly ms-core2 microservices.
+  - move to the project directory, for example  
+  ```cd ms-core-config-discovery-resilience-routing```
+  - run the following:  
+    ```mvn -pl test ```  
+We are running in this scenario a new microservice, as a Spring Boot application which main class is RoutingServerApplication.
+This new Spring Boot application is annotated with the @EnableZuulProxy annotation which will take care of all the required details.
+The configuration file bootstrap.yml instructs our Zuul service to use the Eureka service for autodiscovery purposes. 
+Accordingly, the Eureka autodiscovery service will discover our two microservices instances
+and will provide their respective IP address and TCP port to the Zuul service that will cache them.
+Now, all that any consumer of our microservices has to do is to call the Zuul service which will route the call to the most appropriated instance of our microservices.  
+You can look at the test class HmlRestControllerTest to see how a consumer is supposed to call our microservices.
 

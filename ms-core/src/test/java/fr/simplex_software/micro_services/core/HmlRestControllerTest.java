@@ -50,13 +50,12 @@ public class HmlRestControllerTest
       logger.debug("*** Registered service: {}", service);
 
     });
-    SubscriberInfo si = new SubscriberInfo("subscriptionName", new JmsTopicSubscriberInfo("selector", "clientId", "http://api/test/"));
     HttpEntity<SubscriberInfo> request = new HttpEntity<SubscriberInfo>(new SubscriberInfo("subscriptionName",
-      new JmsTopicSubscriberInfo("selector", "clientId", "http://hml-core/api/test/")));
-    ResponseEntity resp = restTemplate.postForEntity("http://hml-core/api/subscribe/", request, Void.class);
+      new JmsTopicSubscriberInfo("selector", "clientId", "http://hml-routing/hml-core/api/test/")));
+    ResponseEntity resp = restTemplate.postForEntity("http://hml-routing/hml-core/api/subscribe/", request, Void.class);
     assertEquals(resp.getStatusCode(), HttpStatus.ACCEPTED);
     HttpEntity<HmlEvent> request2 = new HttpEntity<>(new HmlEvent("subscriptionName", "messageId", "payload"));
-    HmlEvent hmle = restTemplate.postForObject("http://hml-core/api/publish/", request2, HmlEvent.class);
+    HmlEvent hmle = restTemplate.postForObject("http://hml-routing/hml-core/api/publish/", request2, HmlEvent.class);
     assertThat(hmle, notNullValue());
     assertEquals(hmle.getMessageId(), "messageId");
     assertEquals(hmle.getPayload(), "payload");

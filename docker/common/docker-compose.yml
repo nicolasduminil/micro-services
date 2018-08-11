@@ -10,6 +10,7 @@ services:
       - "61613:61613"
       - "1883:1883"
       - "61614:61614"
+    hostname: active-mq
   ms-config:
     image: openjdk:8-jdk-alpine
     container_name: ms-config
@@ -18,61 +19,102 @@ services:
     ports:
       - "8888:8888"
     entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-config
     environment:
       BROKER_PORT:  "61616"
   ms-discovery:
     image: openjdk:8-jdk-alpine
+    depends_on:
+      - ms-config
     container_name: ms-discovery
+    links:
+      - ms-config:ms-config
     volumes:
       - ../../ms-discovery/src/main/docker:/usr/local/share/hml
     ports:
       - "8761:8761"
     entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-discovery
     environment:
      PROFILE: "default"
      CONFIGSERVER_URI: "http://ms-config:8888"
      CONFIGSERVER_PORT:   "8888"
-     CONFIGSERVER_LABEL: "discovery"
+     CONFIGSERVER_LABEL: "routing"
      SERVER_PORT: "8761"
+  ms-routing:
+    image: openjdk:8-jdk-alpine
+    depends_on:
+      - ms-config
+      - ms-discovery
+    container_name: ms-routing
+    links:
+      - ms-config:ms-config
+      - ms-discovery:ms-discovery
+    volumes:
+      - ../../ms-routing/src/main/docker:/usr/local/share/hml
+    ports:
+      - "9090:9090"
+    entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-routing
+    environment:
+     PROFILE: "default"
+     CONFIGSERVER_URI: "http://ms-config:8888"
+     CONFIGSERVER_PORT:   "8888"
+     DISCOVERY_PORT: "8761"
+     CONFIGSERVER_LABEL: "routing"
+     SERVER_PORT: "9090"
+     DISCOVERYSERVER_URI: "http://ms-discovery:8761/eureka/"
   ms-core:
     image: openjdk:8-jdk-alpine
     depends_on:
       - ms-config
+      - ms-discovery
+      - ms-routing
     container_name: ms-core
     links:
       - ms-config:ms-config
       - active-mq:active-mq
+      - ms-routing:ms-routing
+      - ms-discovery:ms-discovery
     volumes:
       - ../../ms-core/src/main/docker:/usr/local/share/hml
     ports:
       - "8080:8080"
     entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-core
     environment:
       PROFILE: "default"
       CONFIGSERVER_URI: "http://ms-config:8888"
       CONFIGSERVER_PORT:   "8888"
       BROKER_PORT:  "61616"
       SERVER_PORT: "8080"
-      EUREKASERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "resilience"
+      DISCOVERYSERVER_PORT:   "8761"
+      CONFIGSERVER_LABEL: "routing"
+      ROUTINGSERVER_PORT: "9090"
+      DISCOVERYSERVER_URI: "http://ms-discovery:8761/eureka/"
   ms-core2:
     image: openjdk:8-jdk-alpine
     depends_on:
       - ms-config
+      - ms-discovery
+      - ms-routing
     container_name: ms-core2
     links:
       - ms-config:ms-config
       - active-mq:active-mq
+      - ms-routing:ms-routing
     volumes:
       - ../../ms-core/src/main/docker:/usr/local/share/hml
     ports:
       - "8081:8081"
     entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-core2
     environment:
       PROFILE: "default"
       CONFIGSERVER_URI: "http://ms-config:8888"
       CONFIGSERVER_PORT:   "8888"
       BROKER_PORT:  "61616"
       SERVER_PORT: "8081"
-      EUREKASERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "resilience"
+      DISCOVERYSERVER_PORT:   "8761"
+      CONFIGSERVER_LABEL: "routing"
+      ROUTINGSERVER_PORT: "9090"
