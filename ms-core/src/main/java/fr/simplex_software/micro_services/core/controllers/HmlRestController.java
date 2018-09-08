@@ -42,7 +42,7 @@ public class HmlRestController
   public ResponseEntity gtsSubscribe(@RequestBody SubscriberInfo si) throws JMSException
   {
     subscribers.put(si.getSubscriptionName(), si.getSubscriberInfo());
-    logger.debug("HmlRestController.gtsSubscribe(): Have subscribed to events {}, {}, {}", si.getSubscriptionName(), si.getSubscriberInfo().getClientId(), si.getSubscriberInfo().getMessageSelector());
+    logger.debug("*** HmlRestController.gtsSubscribe(): Have subscribed to events {}, {}, {}", si.getSubscriptionName(), si.getSubscriberInfo().getClientId(), si.getSubscriberInfo().getMessageSelector());
     return ResponseEntity.accepted().build();
   }
 

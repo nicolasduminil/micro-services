@@ -38,17 +38,21 @@ public class HmlRestControllerTest
   public void test1() throws MalformedURLException, JsonProcessingException
   {
     assertNotNull(restTemplate);
-    ResponseEntity<List<String>> services = restTemplate.exchange("http://hml-core/api/services", HttpMethod.GET,null, new ParameterizedTypeReference<List<String>>() {});
+    ResponseEntity<List<String>> services = restTemplate.exchange("http://hml-core/api/services", HttpMethod.GET, null, new ParameterizedTypeReference<List<String>>()
+    {
+    });
     services.getBody().forEach(service ->
     {
-      logger.debug ("*** Registered service: {}", service);
+      logger.debug("*** Registered service: {}", service);
 
     });
     SubscriberInfo si = new SubscriberInfo("subscriptionName", new JmsTopicSubscriberInfo("selector", "clientId", "http://api/test/"));
-     HttpEntity<SubscriberInfo> request = new HttpEntity<SubscriberInfo>(new SubscriberInfo("subscriptionName",
+    HttpEntity<SubscriberInfo> request = new HttpEntity<SubscriberInfo>(new SubscriberInfo("subscriptionName",
       new JmsTopicSubscriberInfo("selector", "clientId", "http://hml-core/api/test/")));
+    logger.debug("*** Posting to subscribe endpoint");
     ResponseEntity resp = restTemplate.postForEntity("http://hml-core/api/subscribe/", request, Void.class);
     assertEquals(resp.getStatusCode(), HttpStatus.ACCEPTED);
+    logger.debug("*** Posted to subscribe endpoint");
     HttpEntity<HmlEvent> request2 = new HttpEntity<>(new HmlEvent("subscriptionName", "messageId", "payload"));
     HmlEvent hmle = restTemplate.postForObject("http://hml-core/api/publish/", request2, HmlEvent.class);
     assertThat(hmle, notNullValue());
