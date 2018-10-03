@@ -1,4 +1,10 @@
 spring:
+  cloud:
+    config:
+      uri: http://192.19.0.2:8888
+      name: hml-core
+      label: oauth
+      profile: default
   application:
     name: hml-routing
 management:

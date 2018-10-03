@@ -18,6 +18,18 @@ while ! `nc -z ms-routing  $ROUTINGSERVER_PORT`; do sleep 3; done
 echo "******* The Routing Service has started"
 
 echo "********************************************************"
+echo "Waiting for the keycloak service to start on port $KEYCLOAKSERVER_PORT"
+echo "********************************************************"
+while ! `nc -z keycloak  $KEYCLOAKSERVER_PORT`; do sleep 3; done
+echo "******* The Keycloak Service has started"
+
+echo "********************************************************"
+echo "Waiting for the ms-keycloak service to start on port $MS_KEYCLOAKSERVER_PORT"
+echo "********************************************************"
+while ! `nc -z ms-keycloak  $MS_KEYCLOAKSERVER_PORT`; do sleep 3; done
+echo "******* The MS-Keycloak Service has started"
+
+echo "********************************************************"
 echo "Starting the core service with configuration on :  $CONFIGSERVER_URI"
 echo "********************************************************"
-java -Dserver.port=$SERVER_PORT -Dspring.cloud.config.uri=$CONFIGSERVER_URI -Dspring.profiles.active=$PROFILE -Dspring.cloud.config.label=$CONFIGSERVER_LABEL -jar /usr/local/share/hml/ms-core.jar
+java -Dserver.port=$SERVER_PORT -Dspring.cloud.config.uri=$CONFIGSERVER_URI -Dspring.cloud.config.profile=$PROFILE -Dspring.profiles.active=$PROFILE -Dspring.cloud.config.label=$CONFIGSERVER_LABEL -jar /usr/local/share/hml/ms-core.jar

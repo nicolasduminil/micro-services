@@ -4,90 +4,253 @@ services:
     image: webcenter/activemq:latest
     container_name: active-mq
     ports:
-      - "8161:8161"
-      - "61616:61616"
-      - "5672:5672"
-      - "61613:61613"
-      - "1883:1883"
-      - "61614:61614"
+    - "8161:8161"
+    - "61616:61616"
+    - "5672:5672"
+    - "61613:61613"
+    - "1883:1883"
+    - "61614:61614"
+    hostname: active-mq
+    networks:
+      net1:
+        ipv4_address: 192.19.0.4
   ms-config:
     image: openjdk:8-jdk-alpine
     container_name: ms-config
     volumes:
-      - ../../ms-config/src/main/docker:/usr/local/share/hml
+    - ../../ms-config/src/main/docker:/usr/local/share/hml
     ports:
-      - "8888:8888"
+    - "8888:8888"
     entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-config
     environment:
       BROKER_PORT:  "61616"
+      KEYCLOAK_PORT: "8080"
+    networks:
+      net1:
+        ipv4_address: 192.19.0.2
   ms-discovery:
     image: openjdk:8-jdk-alpine
+    depends_on:
+    - ms-config
     container_name: ms-discovery
+    links:
+    - ms-config:ms-config
     volumes:
-      - ../../ms-discovery/src/main/docker:/usr/local/share/hml
+    - ../../ms-discovery/src/main/docker:/usr/local/share/hml
     ports:
-      - "8761:8761"
+    - "8761:8761"
     entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-discovery
     environment:
-     PROFILE: "dev"
-     CONFIGSERVER_URI: "http://ms-config:8888"
-     CONFIGSERVER_PORT:   "8888"
-     CONFIGSERVER_LABEL: "routing"
-     SERVER_PORT: "8761"
+      PROFILE: "default"
+      CONFIGSERVER_URI: "http://ms-config:8888"
+      CONFIGSERVER_PORT:   "8888"
+      CONFIGSERVER_LABEL: "oauth"
+      SERVER_PORT: "8761"
+    networks:
+      net1:
+        ipv4_address: 192.19.0.5
   ms-routing:
     image: openjdk:8-jdk-alpine
+    depends_on:
+    - ms-config
+    - ms-discovery
     container_name: ms-routing
+    links:
+    - active-mq:active-mq
+    - ms-config:ms-config
+    - ms-discovery:ms-discovery
     volumes:
-      - ../../ms-routing/src/main/docker:/usr/local/share/hml
+    - ../../ms-routing/src/main/docker:/usr/local/share/hml
     ports:
-      - "5555:5555"
+    - "9090:9090"
+    entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-routing
+    environment:
+      PROFILE: "default"
+      CONFIGSERVER_URI: "http://ms-config:8888"
+      CONFIGSERVER_PORT:   "8888"
+      DISCOVERY_PORT: "8761"
+      CONFIGSERVER_LABEL: "oauth"
+      SERVER_PORT: "9090"
+      DISCOVERYSERVER_URI: "http://ms-discovery:8761/eureka/"
+    networks:
+      net1:
+        ipv4_address: 192.19.0.6
+  keycloak:
+    image: jboss/keycloak:3.2.1.Final
+    volumes:
+    - ../scripts:/opt/jboss/keycloak/customization/
+    container_name: keycloak
+    entrypoint: /opt/jboss/docker-entrypoint.sh -b 0.0.0.0 -bmanagement 0.0.0.0
+    hostname: keycloak
+    ports:
+    - "18080:8080"
+    - "19990:9990"
+    environment:
+      KEYCLOAK_USER: "admin"
+      KEYCLOAK_PASSWORD: "admin"
+    networks:
+      net1:
+        ipv4_address: 192.19.0.3
+  ms-keycloak:
+    image: openjdk:8-jdk-alpine
+    depends_on:
+    - ms-config
+    - ms-discovery
+    - ms-routing
+    - keycloak
+    container_name: ms-keycloak
+    links:
+    - ms-config:ms-config
+    - active-mq:active-mq
+    - ms-discovery:ms-discovery
+    - ms-routing:ms-routing
+    - keycloak:keycloak
+    volumes:
+    - ../../ms-keycloak/src/main/docker:/usr/local/share/hml
+    hostname: ms-keycloak
+    ports:
+    - "8085:8085"
     entrypoint: /usr/local/share/hml/run.sh
     environment:
-     PROFILE: "dev"
-     CONFIGSERVER_URI: "http://ms-config:8888"
-     CONFIGSERVER_PORT:   "8888"
-     DISCOVERY_PORT: "8761"
-     CONFIGSERVER_LABEL: "routing"
-     SERVER_PORT: "5555"
+      PROFILE: "default"
+      CONFIGSERVER_URI: "http://ms-config:8888"
+      CONFIGSERVER_PORT:   "8888"
+      SERVER_PORT: "8085"
+      DISCOVERYSERVER_PORT: "8761"
+      CONFIGSERVER_LABEL: "oauth"
+      DISCOVERYSERVER_URI: "http://ms-discovery:8761/eureka/"
+      KEYCLOAKSERVER_PORT: "8080"
+      ROUTINGSERVER_PORT: "9090"
+    networks:
+      net1:
+        ipv4_address: 192.19.0.9
   ms-core:
     image: openjdk:8-jdk-alpine
     depends_on:
-      - ms-config
+    - ms-config
+    - ms-discovery
+    - ms-routing
+    - keycloak
+    - ms-keycloak
     container_name: ms-core
     links:
-      - ms-config:ms-config
-      - active-mq:active-mq
+    - ms-config:ms-config
+    - active-mq:active-mq
+    - ms-routing:ms-routing
+    - ms-discovery:ms-discovery
+    - ms-keycloak:ms-keycloak
+    - keycloak:keycloak
     volumes:
-      - ../../ms-core/src/main/docker:/usr/local/share/hml
+    - ../../ms-core/src/main/docker:/usr/local/share/hml
     ports:
-      - "8080:8080"
+    - "8080:8080"
     entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-core
     environment:
-      PROFILE: "dev"
+      PROFILE: "default"
       CONFIGSERVER_URI: "http://ms-config:8888"
       CONFIGSERVER_PORT:   "8888"
       BROKER_PORT:  "61616"
       SERVER_PORT: "8080"
-      EUREKASERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "routing"
+      DISCOVERYSERVER_PORT:   "8761"
+      CONFIGSERVER_LABEL: "oauth"
+      ROUTINGSERVER_PORT: "9090"
+      DISCOVERYSERVER_URI: "http://ms-discovery:8761/eureka/"
+      KEYCLOAKSERVER_PORT: "8080"
+      MS_KEYCLOAKSERVER_PORT: "8085"
+    networks:
+      net1:
+        ipv4_address: 192.19.0.8
   ms-core2:
     image: openjdk:8-jdk-alpine
     depends_on:
-      - ms-config
+    - ms-config
+    - ms-discovery
+    - ms-routing
+    - keycloak
+    - ms-keycloak
     container_name: ms-core2
     links:
-      - ms-config:ms-config
-      - active-mq:active-mq
+    - ms-config:ms-config
+    - active-mq:active-mq
+    - ms-routing:ms-routing
+    - ms-keycloak:ms-keycloak
+    - keycloak:keycloak
     volumes:
-      - ../../ms-core/src/main/docker:/usr/local/share/hml
+    - ../../ms-core/src/main/docker:/usr/local/share/hml
     ports:
-      - "8081:8081"
+    - "8081:8081"
     entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-core2
     environment:
-      PROFILE: "dev"
+      PROFILE: "default"
       CONFIGSERVER_URI: "http://ms-config:8888"
       CONFIGSERVER_PORT:   "8888"
       BROKER_PORT:  "61616"
       SERVER_PORT: "8081"
-      EUREKASERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "routing"
+      DISCOVERYSERVER_PORT:   "8761"
+      CONFIGSERVER_LABEL: "oauth"
+      ROUTINGSERVER_PORT: "9090"
+      DISCOVERYSERVER_URI: "http://ms-discovery:8761/eureka/"
+      KEYCLOAKSERVER_PORT: "8080"
+      MS_KEYCLOAKSERVER_PORT: "8085"
+    networks:
+      net1:
+        ipv4_address: 192.19.0.7
+  ms-core-test:
+    image: openjdk:8-jdk-alpine
+    depends_on:
+    - ms-core
+    - ms-core2
+    - ms-config
+    - ms-discovery
+    - ms-routing
+    - keycloak
+    - ms-keycloak
+    container_name: ms-core-test
+    links:
+    - ms-core:ms-core
+    - ms-core2:ms-core2
+    - ms-config:ms-config
+    - active-mq:active-mq
+    - ms-routing:ms-routing
+    - ms-keycloak:ms-keycloak
+    - keycloak:keycloak
+    volumes:
+    - ../../ms-core-test/src/main/docker:/usr/local/share/hml
+    ports:
+    - "8082:8082"
+    entrypoint: /usr/local/share/hml/run.sh
+    hostname: ms-core-test
+    environment:
+      PROFILE: "default"
+      CONFIGSERVER_URI: "http://ms-config:8888"
+      CONFIGSERVER_PORT:   "8888"
+      BROKER_PORT:  "61616"
+      SERVER_PORT: "8081"
+      DISCOVERYSERVER_PORT:   "8761"
+      CONFIGSERVER_LABEL: "oauth"
+      ROUTINGSERVER_PORT: "9090"
+      DISCOVERYSERVER_URI: "http://ms-discovery:8761/eureka/"
+      KEYCLOAKSERVER_PORT: "8080"
+      MS_KEYCLOAKSERVER_PORT: "8085"
+      MS_CORE_HOST: "192.19.0.8"
+      MS_CORE_PORT: "8080"
+      MS_CORE2_HOST: "192.19.0.9"
+      MS_CORE2_PORT: "8081"
+    networks:
+      net1:
+        ipv4_address: 192.19.0.10
+networks:
+  net1:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.19.0.0/24
+        gateway: 192.19.0.1

@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: hml-keycloak
+  cloud:
+    config:
+      uri: http://192.19.0.2:8888
+      name: hml-core
+      label: oauth
+      profile: default
+eureka:
+  instance:
+    preferIpAddress: "true"
+  client:
+    registerWithEureka: "true"
+    fetchRegistry: "true"
+    serviceUrl:
+      defaultZone: "http://ms-discovery:8761/eureka/"

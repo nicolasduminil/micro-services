@@ -2,11 +2,12 @@ package fr.simplex_software.micro_services.core.config;
 
 import org.apache.activemq.*;
 import org.apache.activemq.command.*;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.*;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
 import org.springframework.jms.config.*;
 import org.springframework.jms.core.*;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.*;
 
 import javax.jms.*;
 import java.net.*;
@@ -14,6 +15,7 @@ import java.net.*;
 @Component
 public class HmlConfig
 {
+  private static final Logger logger = LoggerFactory.getLogger(HmlConfig.class);
   @Value("${jms.destination.name}")
   private String destinationName;
   @Value("${jms.broker.url}")

@@ -6,25 +6,21 @@ import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.cloud.client.circuitbreaker.*;
 import org.springframework.cloud.client.discovery.*;
-import org.springframework.cloud.client.loadbalancer.*;
-import org.springframework.cloud.netflix.eureka.*;
 import org.springframework.cloud.netflix.hystrix.dashboard.*;
 import org.springframework.http.*;
 import org.springframework.jms.core.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.*;
 
 import javax.jms.*;
-import java.net.*;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@EnableCircuitBreaker
-@EnableHystrixDashboard
+//@EnableCircuitBreaker
+//@EnableHystrixDashboard
 public class HmlRestController
 {
-  public static final Logger logger = LoggerFactory.getLogger(HmlRestController.class);
+  private static final Logger logger = LoggerFactory.getLogger(HmlRestController.class);
 
   @Autowired
   private JmsTemplate jmsTemplate;
@@ -44,8 +40,8 @@ public class HmlRestController
   }
 
   @RequestMapping(value = "/subscribe/", method = RequestMethod.POST)
-  @HystrixCommand(fallbackMethod = "gtsFallbackSubscribe")
-  public ResponseEntity gtsSubscribe(@RequestBody SubscriberInfo si) throws JMSException
+  //@HystrixCommand(fallbackMethod = "gtsFallbackSubscribe")
+  public ResponseEntity gtsSubscribe(@RequestBody SubscriberInfo si)
   {
     subscribers.put(si.getSubscriptionName(), si.getSubscriberInfo());
     logger.debug("*** HmlRestController.gtsSubscribe(): Have subscribed to events {}, {}, {}", si.getSubscriptionName(), si.getSubscriberInfo().getClientId(), si.getSubscriberInfo().getMessageSelector());
@@ -64,19 +60,14 @@ public class HmlRestController
   {
     logger.debug("*** HmlRestController.getRegisteredServices()");
     List<String> services = new ArrayList<String>();
-    discoveryClient.getServices().forEach(serviceName ->
-    {
-      discoveryClient.getInstances(serviceName).forEach(instance ->
-      {
-        services.add(String.format("%s:%s", serviceName, instance.getUri()));
-      });
-    });
+    discoveryClient.getServices().forEach(serviceName -> discoveryClient.getInstances(serviceName).forEach(instance -> services.add(String.format("%s:%s", serviceName, instance.getUri()))));
     return services;
   }
 
   public static String getCallbackUrl(String subscriptionName)
   {
-    return subscribers.get(subscriptionName).getCallback();
+    JmsTopicSubscriberInfo jtsi = subscribers.get(subscriptionName);
+    return jtsi == null ? "": jtsi.getCallback();
   }
 
   private ResponseEntity gtsFallbackSubscribe(@RequestBody SubscriberInfo si) throws JMSException

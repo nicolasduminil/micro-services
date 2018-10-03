@@ -1,11 +1,9 @@
 package fr.simplex_software.micro_services.core;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.*;
+import org.springframework.boot.autoconfigure.*;
 import org.springframework.cloud.client.loadbalancer.*;
 import org.springframework.cloud.context.config.annotation.*;
-import org.springframework.cloud.netflix.eureka.*;
-import org.springframework.cloud.netflix.hystrix.dashboard.*;
 import org.springframework.context.annotation.*;
 import org.springframework.web.client.*;
 

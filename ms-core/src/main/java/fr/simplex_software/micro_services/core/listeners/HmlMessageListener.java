@@ -3,6 +3,8 @@ package fr.simplex_software.micro_services.core.listeners;
 import fr.simplex_software.micro_services.core.controllers.*;
 import fr.simplex_software.micro_services.core.domain.*;
 import org.slf4j.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.cloud.client.loadbalancer.*;
 import org.springframework.http.*;
 import org.springframework.jms.annotation.*;
 import org.springframework.stereotype.*;
@@ -15,6 +17,9 @@ public class HmlMessageListener
 {
   public static final Logger logger = LoggerFactory.getLogger(HmlMessageListener.class);
   private JmsTopicSubscriberInfo jtsi;
+  @Autowired
+  @LoadBalanced
+  private RestTemplate restTemplate;
 
   public HmlMessageListener()
   {
@@ -40,6 +45,8 @@ public class HmlMessageListener
   {
     logger.debug("*** HmlMessageListener.onMessage: have received a message {}", message);
     HmlEvent event = (HmlEvent)((ObjectMessage)message).getObject();
-    new RestTemplate().postForObject(HmlRestController.getCallbackUrl(event.getSubscriptionName()), new HttpEntity<HmlEvent>(event), Message.class);
+    String callbackUrl = HmlRestController.getCallbackUrl(event.getSubscriptionName());
+    if (!callbackUrl.isEmpty())
+      restTemplate.postForObject(callbackUrl, new HttpEntity<HmlEvent>(event), Message.class);
   }
 }
