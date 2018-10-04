@@ -79,7 +79,7 @@ services:
       net1:
         ipv4_address: 192.19.0.6
   keycloak:
-    image: jboss/keycloak:3.2.1.Final
+    image: jboss/keycloak:3.4.2.Final
     volumes:
     - ../scripts:/opt/jboss/keycloak/customization/
     container_name: keycloak
@@ -200,50 +200,6 @@ services:
     networks:
       net1:
         ipv4_address: 192.19.0.7
-  ms-core-test:
-    image: openjdk:8-jdk-alpine
-    depends_on:
-    - ms-core
-    - ms-core2
-    - ms-config
-    - ms-discovery
-    - ms-routing
-    - keycloak
-    - ms-keycloak
-    container_name: ms-core-test
-    links:
-    - ms-core:ms-core
-    - ms-core2:ms-core2
-    - ms-config:ms-config
-    - active-mq:active-mq
-    - ms-routing:ms-routing
-    - ms-keycloak:ms-keycloak
-    - keycloak:keycloak
-    volumes:
-    - ../../ms-core-test/src/main/docker:/usr/local/share/hml
-    ports:
-    - "8082:8082"
-    entrypoint: /usr/local/share/hml/run.sh
-    hostname: ms-core-test
-    environment:
-      PROFILE: "default"
-      CONFIGSERVER_URI: "http://ms-config:8888"
-      CONFIGSERVER_PORT:   "8888"
-      BROKER_PORT:  "61616"
-      SERVER_PORT: "8081"
-      DISCOVERYSERVER_PORT:   "8761"
-      CONFIGSERVER_LABEL: "oauth"
-      ROUTINGSERVER_PORT: "9090"
-      DISCOVERYSERVER_URI: "http://ms-discovery:8761/eureka/"
-      KEYCLOAKSERVER_PORT: "8080"
-      MS_KEYCLOAKSERVER_PORT: "8085"
-      MS_CORE_HOST: "192.19.0.8"
-      MS_CORE_PORT: "8080"
-      MS_CORE2_HOST: "192.19.0.9"
-      MS_CORE2_PORT: "8081"
-    networks:
-      net1:
-        ipv4_address: 192.19.0.10
 networks:
   net1:
     driver: bridge

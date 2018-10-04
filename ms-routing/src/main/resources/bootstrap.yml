@@ -13,3 +13,4 @@ management:
 eureka:
   instance:
     preferIpAddress: "true"
+    prefer-same-zone-eureka: true

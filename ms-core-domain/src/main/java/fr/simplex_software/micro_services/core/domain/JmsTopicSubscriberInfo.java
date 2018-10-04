@@ -1,7 +1,5 @@
 package fr.simplex_software.micro_services.core.domain;
 
-import java.net.*;
-
 public class JmsTopicSubscriberInfo
 {
   private String messageSelector;
@@ -12,7 +10,7 @@ public class JmsTopicSubscriberInfo
   {
   }
 
-  public JmsTopicSubscriberInfo(String messageSelector, String clientId, String callback) throws MalformedURLException
+  public JmsTopicSubscriberInfo(String messageSelector, String clientId, String callback)
   {
     this.messageSelector = messageSelector;
     this.callback = callback;

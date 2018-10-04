@@ -13,5 +13,6 @@ eureka:
   client:
     registerWithEureka: "true"
     fetchRegistry: "true"
+    prefer-same-zone-eureka: true
     serviceUrl:
       defaultZone: "http://ms-discovery:8761/eureka/"

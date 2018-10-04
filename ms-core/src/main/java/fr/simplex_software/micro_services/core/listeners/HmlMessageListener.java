@@ -45,8 +45,15 @@ public class HmlMessageListener
   {
     logger.debug("*** HmlMessageListener.onMessage: have received a message {}", message);
     HmlEvent event = (HmlEvent)((ObjectMessage)message).getObject();
-    String callbackUrl = HmlRestController.getCallbackUrl(event.getSubscriptionName());
-    if (!callbackUrl.isEmpty())
-      restTemplate.postForObject(callbackUrl, new HttpEntity<HmlEvent>(event), Message.class);
+    String subscriptionName = event.getSubscriptionName();
+    String callbackUrl = null;
+    //
+    // Avoid to publish before subscribing.
+    // This may happen sometimes, due to the the services latency relative to the JMS listener
+    //
+    while  ((callbackUrl = HmlRestController.getCallbackUrl(subscriptionName)).isEmpty())
+      Thread.yield();
+    logger.debug("*** HmlMessageListener.onMessage: Invoking {}", callbackUrl);
+    restTemplate.postForObject(callbackUrl, new HttpEntity<HmlEvent>(event), Message.class);
   }
 }

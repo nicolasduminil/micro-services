@@ -3,7 +3,6 @@ package fr.simplex_software.micro_services.keycloak;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
 import org.springframework.cloud.client.loadbalancer.*;
-import org.springframework.cloud.netflix.eureka.*;
 import org.springframework.context.annotation.*;
 import org.springframework.web.client.*;
 

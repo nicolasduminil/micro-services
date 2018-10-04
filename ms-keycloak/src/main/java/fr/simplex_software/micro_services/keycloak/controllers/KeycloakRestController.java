@@ -26,9 +26,9 @@ public class KeycloakRestController
   @RequestMapping(value = "/accessToken", method = RequestMethod.GET)
   public String getAccessToken()
   {
-    slf4jLogger.error ("*** KeycloakRestController.getAccessToken: Entry {}, {}, {}, {}, {}", serverUrl, realm, userName, userPassword, clientId);
+    slf4jLogger.debug ("*** KeycloakRestController.getAccessToken: Entry {}, {}, {}, {}, {}", serverUrl, realm, userName, userPassword, clientId);
     String accessToken = ks.getAccessToken(serverUrl, realm, userName, userPassword, clientId);
-    slf4jLogger.error ("*** KeycloakRestController.getAccessToken: access token: {}", accessToken);
+    slf4jLogger.debug ("*** KeycloakRestController.getAccessToken: access token: {}", accessToken);
     return accessToken;
   }
 }
