@@ -43,7 +43,7 @@ public class RouteFilter extends ZuulFilter
     logger.debug("*** RouteFilter(): Processing incoming request for {}, {}, {}.", req.getRequestURI(), req.getRequestURL().toString(), req.getRemoteAddr());
     accessToken = restTemplate.getForObject("http://hml-keycloak/auth/accessToken", String.class);
     logger.debug("*** RouteFilter(): Processing outgoing response for {}.", accessToken);
-    //context.addZuulRequestHeader(AUTHORIZATION_HEADER, "Bearer " + accessToken);
+    context.addZuulRequestHeader(AUTHORIZATION_HEADER, "Bearer " + accessToken);
     return null;
   }
 }

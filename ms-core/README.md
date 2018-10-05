@@ -40,5 +40,5 @@ The new elements of this 6th part are the two docker containers running the Keyc
 the Keycloak microservice. This second one is a Spring Boot application exposing the Keycloak administration client API.
 The Zuul microservice has been modified also such that to invoke the Keycloak microservice in order to
 obtain an OAuth 2.0 Bearer token. Once obtained on the behalf of the Keycloak microservice, via the Keycloak
-administration client API, this token is inserted by the Zuul filter into the HTTP requests. This way the microservices are protected from the public access.We are running in this scenario a new microservice, as a Spring Boot application which main class is RoutingServerApplication.
+administration client API, this token is inserted by the Zuul filter into the HTTP requests. This way the microservices are protected from the public access.
 

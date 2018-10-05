@@ -1,12 +1,9 @@
 package fr.simplex_software.micro_services.core.controllers;
 
-import com.netflix.hystrix.contrib.javanica.annotation.*;
 import fr.simplex_software.micro_services.core.domain.*;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.cloud.client.circuitbreaker.*;
 import org.springframework.cloud.client.discovery.*;
-import org.springframework.cloud.netflix.hystrix.dashboard.*;
 import org.springframework.http.*;
 import org.springframework.jms.core.*;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +13,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-//@EnableCircuitBreaker
-//@EnableHystrixDashboard
 public class HmlRestController
 {
   private static final Logger logger = LoggerFactory.getLogger(HmlRestController.class);
@@ -40,7 +35,6 @@ public class HmlRestController
   }
 
   @RequestMapping(value = "/subscribe/", method = RequestMethod.POST)
-  //@HystrixCommand(fallbackMethod = "gtsFallbackSubscribe")
   public ResponseEntity gtsSubscribe(@RequestBody SubscriberInfo si)
   {
     subscribers.put(si.getSubscriptionName(), si.getSubscriberInfo());
